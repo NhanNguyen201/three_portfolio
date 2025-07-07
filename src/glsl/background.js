@@ -17,6 +17,7 @@ export default {
 
         uniform float uProgress;
         uniform float uOffset;
+        uniform float uTime;
         varying vec2 vUv;
 
         vec4 toRgb (vec4 c) {
@@ -53,20 +54,36 @@ export default {
         }
         void main() {
             
-            vec2 newUV = vec2(vUv.x, (vUv.y * 0.2 + uOffset));
-            float  wave = noise(vec2(newUV.x * fre, newUV.y * fre * 5.));
+            vec2 newUv = vec2(vUv.x, (vUv.y * 0.2 + uOffset));
+            vec4 texture_1 = texture2D(uTxt1, newUv);
 
+            float  progWave = noise(vec2(newUv.x * fre, newUv.y * fre * 5.));
+            float aniWave = noise(vec2((newUv.x  + uTime * 2.) * fre, (newUv.y + uTime * 3.) * fre)) * 0.15;
+            
             vec4 pink = toRgb(vec4(230., 47., 95., 1.));
             vec4 white = toRgb(vec4(255., 255., 255., 1.));
-            vec4 texture = texture2D(uTxt1, newUV);
-            float gray = texture.r * 0.21 + texture.g * 0.71 + texture.b * 0.07;
-            float colorFactor = 0.9;
-            vec4 grayscale = vec4(texture.rgb * (1.0 - colorFactor) + (gray * colorFactor), 1.);
-            vec4 txt1 = mix(texture, pink, step(uProgress - 0.02, wave * 0.5 + 0.5));
-            vec4 txt2 = mix(vec4(1.), grayscale, step(uProgress + 0.02, wave * 0.5 + 0.5));
+
+            float r1 = texture2D(uTxt1, fract(newUv + aniWave * 0.06)).r  ; // turn pink
+            float g1 = texture2D(uTxt1, fract(newUv +  aniWave * 0.0005 )).g    ;
+            float b1 = texture2D(uTxt1, fract(newUv + aniWave * 0.01)).b   ;
+
+            vec4 distor2 = vec4(vec3(abs(0.25 - r1) , fract(abs(0.15 + aniWave - g1) * 2.), fract(abs(aniWave - b1 ) * 1.5)), 1.);
+
+            vec4 mix2 = mix(
+                texture_1, 
+                distor2, 
+                step(
+                    0.55,
+                    abs(0.5 - dot(
+                        distor2.rgb, toRgb(vec4(174., 46., 242., 1.)).rgb
+                    ))
+                ));
+
+            vec4 txt1 = mix(texture_1, pink, step(uProgress - 0.02, progWave * 0.5 + 0.5));
+            vec4 txt2 = mix(vec4(1.), mix2, step(uProgress + 0.02, progWave * 0.5 + 0.5));
           
 
-            gl_FragColor = mix(txt1, txt2, step(uProgress, wave * 0.5 + 0.5));
+            gl_FragColor = mix(txt1, txt2, step(uProgress, progWave * 0.5 + 0.5));
 			
         }
     `
