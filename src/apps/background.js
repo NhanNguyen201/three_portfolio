@@ -77,7 +77,8 @@ export default class App {
             uniforms: {
                 uTxt1: { type: "sample2D", value: this.textureLoader.load(bgImg) },
                 uOffset : { type: 'float', value:   0.8 },
-                uProgress: { type: 'float', value: 0. }
+                uProgress: { type: 'float', value: 0. },
+                uTime: {type: 'float', value: 0.}
             },          
             side: THREE.DoubleSide
         })
@@ -120,41 +121,16 @@ export default class App {
     }
     
     async init(){
-        // this.addLights()
+        this.addLights()
         await this.initStage(() => this.callAfterInit())
         
         this.addEvents()
     }
     callAfterInit(){
-        this.addSpotlight()
         this.addButtonPressed()
     }
-    addSpotlight(){
-        this.ambient = new THREE.AmbientLight({color: 0x757575, intensity: 0.5 })
-        this.world.add(this.ambient)
-       
-        if(this.objects.objectVal["lights"]){
-            this.objects.objectVal["lights"].forEach(lightObj => {
-                let color = new THREE.Color().setHSL(0.6 + (Math.random() - Math.random()) * 0.5, 1, 0.5)
-                lightObj.children[0].material = new THREE.MeshBasicMaterial({color})
-                let light = new THREE.SpotLight(color, 1.6, 10)
-                let glowMat = new THREE.MeshBasicMaterial({color, transparent: true, opacity: .15})
-                let glowMesh_1 = new THREE.Mesh(
-                    new THREE.SphereGeometry(1.5, 12, 12),
-                    glowMat
-                )
-                lightObj.add(glowMesh_1)
-                let glowMesh_2 = glowMesh_1.clone()
-                glowMesh_2.scale.multiplyScalar(1.5)
-                lightObj.add(glowMesh_2)
-                lightObj.add(light)
-                this.spotLight.add(lightObj)
-
-            });
-        }
-        this.umiGroup.add(this.spotLight)
-    }
-     scollTo(sectionName) {
+   
+    scollTo(sectionName) {
         const rotated = {
             "index" : { // name face
                 y: -5,
@@ -265,18 +241,18 @@ export default class App {
         })
     }
     addLights(){
-        // this.ambient = new THREE.AmbientLight({color: 0x757575})
-        // this.scene.add(this.ambient)
+        this.ambient = new THREE.AmbientLight({color: 0x757575, intensity: 0.25 })
+        this.world.add(this.ambient)
         var lights = [];
-        lights[0] = new THREE.DirectionalLight( 0xffffff, 1.55 );
+        lights[0] = new THREE.DirectionalLight( 0xffffff, .55 );
         lights[0].position.set( 10, 0, 0 );
 
-        lights[1] = new THREE.DirectionalLight( 0x11E8BB, 2.5 );
+        lights[1] = new THREE.DirectionalLight( 0x11E8BB, .5 );
         lights[1].position.set( 4.75, 8, 0.5 );
        
-        lights[2] = new THREE.DirectionalLight( 0x8200C9, 2.5 );
+        lights[2] = new THREE.DirectionalLight( 0x8200C9, .5 );
         lights[2].position.set( -12.75, -1, 0.5 );
-        lights[3] = new THREE.DirectionalLight( 0xffffff, 2.5 );
+        lights[3] = new THREE.DirectionalLight( 0xffffff, .5 );
         lights[3].position.set( 5, 3, -8 );
         this.scene.add( lights[0] );
         this.scene.add( lights[1] );
@@ -295,12 +271,7 @@ export default class App {
                 if(obj) {
                     this.objects.objectVal[obj] = object
                 } 
-                let lightObjs = String(object.userData.name).startsWith("IcoLight")
-                if(lightObjs) {
-                    this.objects.objectVal["lights"].push(object)
-                    
-                    
-                }
+               
             });
             this.model = this.objects.objectVal.umi;
             this.umiGroup.add(this.model)
@@ -384,6 +355,9 @@ export default class App {
             this.canBackgroundAnimated.time += 0.01
             this.backgroundMaterial.uniforms.uProgress.value = Math.pow(Math.sin(this.canBackgroundAnimated.time / 2), 2)
         } 
+        if(this.backgroundMaterial) {
+            this.backgroundMaterial.uniforms.uTime.value = time / 16.
+        }
         this.spotLight.rotation.y -= 0.01
         this.renderer.render(this.scene, this.camera);
     }
