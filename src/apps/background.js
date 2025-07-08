@@ -356,7 +356,7 @@ export default class App {
             this.backgroundMaterial.uniforms.uProgress.value = Math.pow(Math.sin(this.canBackgroundAnimated.time / 2), 2)
         } 
         if(this.backgroundMaterial) {
-            this.backgroundMaterial.uniforms.uTime.value = time / 16.
+            this.backgroundMaterial.uniforms.uTime.value = time / 32.
         }
         this.spotLight.rotation.y -= 0.01
         this.renderer.render(this.scene, this.camera);

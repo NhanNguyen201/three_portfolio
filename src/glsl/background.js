@@ -62,7 +62,7 @@ export default {
             
             vec4 pink = toRgb(vec4(230., 47., 95., 1.));
             vec4 white = toRgb(vec4(255., 255., 255., 1.));
-
+            vec4 dotColor = toRgb(vec4(44., 96., 222., 1.));
             float r1 = texture2D(uTxt1, fract(newUv + aniWave * 0.06)).r  ; // turn pink
             float g1 = texture2D(uTxt1, fract(newUv +  aniWave * 0.0005 )).g    ;
             float b1 = texture2D(uTxt1, fract(newUv + aniWave * 0.01)).b   ;
@@ -73,9 +73,9 @@ export default {
                 texture_1, 
                 distor2, 
                 step(
-                    0.55,
-                    abs(0.5 - dot(
-                        distor2.rgb, toRgb(vec4(174., 46., 242., 1.)).rgb
+                    0.5,
+                    abs(0.25 - dot(
+                        distor2.rgb, dotColor.rgb
                     ))
                 ));
 
